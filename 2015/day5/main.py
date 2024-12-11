@@ -1,11 +1,11 @@
 class StringFind:
     vowels = "aeiou"
-    dontContain = ["ab", "cd", "pq", "or" "xy"]
+    dontContain = ["ab", "cd", "pq", "xy"]
 
     def __init__(self):
         self.vowelCounter = 0
         self.slidingTwoChars = []
-        self.charCount = {}
+        self.twiceSlide = []
         self.twiceSeen = False
         self.forbide = False
 
@@ -13,9 +13,17 @@ class StringFind:
         if self.char in StringFind.vowels:
             self.vowelCounter += 1
 
-    def twiceRow(self) -> None:
-        self.charCount.setdefault(self.char, 0)
-        self.charCount[self.char] += 1
+    def twiceRowOnly(self) -> None:
+        if self.twiceSeen:
+            return
+        if len(self.twiceSlide) < 2:
+            self.twiceSlide.append(self.char)
+            return
+        if self.twiceSlide[0] == self.twiceSlide[1]:
+            self.twiceSeen = True
+        else:
+            self.twiceSlide = self.twiceSlide[1:]
+            self.twiceSlide.append(self.char)
 
     def notContains(self) -> None:
         if self.forbide:
@@ -30,13 +38,15 @@ class StringFind:
             self.slidingTwoChars.append(self.char)
             self.slidingTwoChars = self.slidingTwoChars[1:]
             return
+        else:
+            raise AssertionError(
+                "self.slidingTwoChars, should never be more than 2 valuees long"
+            )
 
     def checkResults(self) -> bool:
-        for value in self.charCount.values():
-            if value == 2:
-                self.twiceSeen = True
-
-        if self.vowelCounter >= 3 and self.twiceSeen is True and self.forbide is False:
+        if self.forbide is True:
+            return False
+        if self.vowelCounter >= 3 and self.twiceSeen is True:
             return True
         else:
             return False
@@ -44,18 +54,24 @@ class StringFind:
     def startChecking(self, char: str) -> bool:
         self.char = char
         self.vowelsCounter()
-        self.twiceRow()
+        self.twiceRowOnly()
         self.notContains()
 
 
+from time import time
+
+start = time()
 with open("/home/rado/personal/AdventCode/2015/day5/input.txt") as inputIO:
     data = inputIO.readlines()
     nice = 0
     for string in data:
         strFinder = StringFind()
-        string = string.strip("\n")
+        string = string.strip("\n") + " "
         for char in string:
             strFinder.startChecking(char)
         if strFinder.checkResults():
             nice += 1
     print(nice)
+end = time()
+
+print(end - start)
