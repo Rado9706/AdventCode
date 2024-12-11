@@ -4,58 +4,29 @@ class StringFind:
 
     def __init__(self):
         self.vowelCounter = 0
-        self.slidingTwoChars = []
-        self.twiceSlide = []
         self.twiceSeen = False
         self.forbide = False
+        self.prev_char = ""
+        self.prev_prev_char = ""
 
-    def vowelsCounter(self) -> None:
-        if self.char in StringFind.vowels:
-            self.vowelCounter += 1
-
-    def twiceRowOnly(self) -> None:
-        if self.twiceSeen:
-            return
-        if len(self.twiceSlide) < 2:
-            self.twiceSlide.append(self.char)
-            return
-        if self.twiceSlide[0] == self.twiceSlide[1]:
-            self.twiceSeen = True
-        else:
-            self.twiceSlide = self.twiceSlide[1:]
-            self.twiceSlide.append(self.char)
-
-    def notContains(self) -> None:
+    def startChecking(self, char: str) -> None:
         if self.forbide:
             return
-        if len(self.slidingTwoChars) < 2:
-            self.slidingTwoChars.append(self.char)
-            return
-        elif len(self.slidingTwoChars) == 2:
-            checkTwo = self.slidingTwoChars[0] + self.slidingTwoChars[1]
-            if any(checkTwo in substring for substring in StringFind.dontContain):
-                self.forbide = True
-            self.slidingTwoChars.append(self.char)
-            self.slidingTwoChars = self.slidingTwoChars[1:]
-            return
-        else:
-            raise AssertionError(
-                "self.slidingTwoChars, should never be more than 2 valuees long"
-            )
+
+        if char in StringFind.vowels:
+            self.vowelCounter += 1
+
+        if char == self.prev_char:
+            self.twiceSeen = True
+
+        if self.prev_prev_char + self.prev_char in StringFind.dontContain:
+            self.forbide = True
+
+        self.prev_prev_char = self.prev_char
+        self.prev_char = char
 
     def checkResults(self) -> bool:
-        if self.forbide is True:
-            return False
-        if self.vowelCounter >= 3 and self.twiceSeen is True:
-            return True
-        else:
-            return False
-
-    def startChecking(self, char: str) -> bool:
-        self.char = char
-        self.vowelsCounter()
-        self.twiceRowOnly()
-        self.notContains()
+        return not self.forbide and self.vowelCounter >= 3 and self.twiceSeen
 
 
 from time import time
